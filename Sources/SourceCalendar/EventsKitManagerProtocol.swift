@@ -5,6 +5,7 @@
 //  Created by Kevin Christiano on 9/16/23.
 //
 
+#if canImport(EventKit)
 import EventKit
 import Foundation
 
@@ -27,3 +28,4 @@ public extension EventsKitManagerProtocol {
         return makeEKEvent(title: title, notes: notes, startDate: startDate)
     }
 }
+#endif

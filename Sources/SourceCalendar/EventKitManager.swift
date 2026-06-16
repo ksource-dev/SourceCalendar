@@ -5,6 +5,7 @@
 //  Created by Kevin Christiano on 9/16/23.
 //
 
+#if canImport(EventKit)
 import EventKit
 import Foundation
 
@@ -165,13 +166,13 @@ public struct EventKitManager: EventsKitManagerProtocol {
         guard let event = store.event(withIdentifier: id) else {
             return
         }
-        
+
         if isAuthorized(.event) {
             do {
                 try store.remove(event,
                                  span: includeAll ? .futureEvents : .thisEvent,
                                  commit: true)
-                
+
             } catch {
 //                logger.error("\(error.localizedDescription)")
             }
@@ -180,3 +181,4 @@ public struct EventKitManager: EventsKitManagerProtocol {
         }
     }
 }
+#endif
