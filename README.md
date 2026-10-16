@@ -2,6 +2,22 @@
 
 Two loosely related things, both about calendar dates:
 
+<!-- at-a-glance:begin -->
+## At a glance
+
+| | |
+|---|---|
+| **Purpose** | EventKit (events and reminders access, create, delete) plus pure date-grid helpers for month calendars. |
+| **Register** | `EventsKitManagerProtocol.self` → `EventKitManager()` — one instance: each owns an `EKEventStore`. |
+| **Inject** | `@Inject private var calendar: EventsKitManagerProtocol` |
+| **Fake in tests** | Conform to `EventsKitManagerProtocol`; tests must never touch the user's real calendar. Date helpers are pure — test directly. |
+| **Platforms** | Declared: iOS, macOS, watchOS, tvOS, visionOS. EventKit half is `#if canImport(EventKit)` (absent on tvOS); date helpers everywhere. |
+| **Depends on** | — |
+| **Used by** | Recursus, Tallyeve |
+
+Standard section — every Source* package opens with it. Keep it current when the package's registration, platforms or consumers change.
+<!-- at-a-glance:end -->
+
 1. **`EventKitManager`** — a thin wrapper over Apple's EventKit so an app can read and write the user's real Calendar app events without dealing with `EKEventStore` boilerplate.
 2. **Date-grid helpers** — `Date.dayRange(to:)` and `[Date].groupedByMonth()`, the two functions you need to build a scrolling month-by-month calendar UI.
 
