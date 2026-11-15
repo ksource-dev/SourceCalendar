@@ -11,7 +11,7 @@ Two loosely related things, both about calendar dates:
 | **Register** | `EventsKitManagerProtocol.self` → `EventKitManager()` — one instance: each owns an `EKEventStore`. |
 | **Inject** | `@Inject private var calendar: EventsKitManagerProtocol` |
 | **Fake in tests** | Conform to `EventsKitManagerProtocol`; tests must never touch the user's real calendar. Date helpers are pure — test directly. |
-| **Platforms** | Declared: iOS, macOS, watchOS, tvOS, visionOS. EventKit half is `#if canImport(EventKit)` (absent on tvOS); date helpers everywhere. |
+| **Platforms** | Declared: iOS, macOS, watchOS, tvOS, visionOS. EventKit half is `#if canImport(EventKit) && !os(watchOS)` (absent on tvOS and watchOS, where EventKit writes are prohibited); date helpers everywhere. |
 | **Depends on** | — |
 | **Used by** | Recursus, Tallyeve |
 
@@ -85,6 +85,7 @@ calendar.setStoreChangedObserver(target: self, selector: #selector(storeChanged)
 
 - **`fetchEvents(for date:)` returns the whole calendar *year* containing `date`, not that one day.** The name is misleading. If you want a single day, use `fetchEvents(start:end:sorted:)` with `startOfDay`/`endOfDay` bounds.
 - **`makeEKEvent` does not save.** Despite its doc comment, it only constructs an `EKEvent` (assigned to `store.defaultCalendarForNewEvents`, with `endDate` one hour after `startDate`). Nothing is written until `saveEKEvent(_:)`.
+- **Prefer the throwing `save(_:includeAll:)` / `remove(_:includeAll:)`, and `fetchEvents(start:end:sorted:)`, all on the protocol so a fake can stand in.**
 - **`saveEKEvent` returns `Bool` and does not throw.** On failure you get `false` and no error object — log at the call site. `deleteEvent` swallows its error entirely.
 - **Each `EventKitManager()` creates its own `EKEventStore`.** Stores are expensive and notification observers are registered against a specific store, so create one manager and share it (register it in `SourceDependency`) rather than instantiating per view.
 - **Authorization is per entity type.** Being authorized for `.event` says nothing about `.reminder` — check each with `isAuthorized(_:)`.

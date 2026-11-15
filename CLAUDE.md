@@ -11,7 +11,7 @@ Two loosely related things: an EventKit wrapper, and the date-grid helpers for b
 | **Register** | `EventsKitManagerProtocol.self` → `EventKitManager()` — one instance: each owns an `EKEventStore`. |
 | **Inject** | `@Inject private var calendar: EventsKitManagerProtocol` |
 | **Fake in tests** | Conform to `EventsKitManagerProtocol`; tests must never touch the user's real calendar. Date helpers are pure — test directly. |
-| **Platforms** | Declared: iOS, macOS, watchOS, tvOS, visionOS. EventKit half is `#if canImport(EventKit)` (absent on tvOS); date helpers everywhere. |
+| **Platforms** | Declared: iOS, macOS, watchOS, tvOS, visionOS. EventKit half is `#if canImport(EventKit) && !os(watchOS)` (absent on tvOS and watchOS, where EventKit writes are prohibited); date helpers everywhere. |
 | **Depends on** | — |
 | **Used by** | Recursus, Tallyeve |
 
@@ -36,6 +36,7 @@ Full write-up: `README.md`.
 - **`saveEKEvent` returns `Bool` and never throws**; `deleteEvent` swallows its error entirely. Log at the call site.
 - **`groupedByMonth()` assumes sorted input** — it single-passes and starts a new group on any year/month change, so unsorted input silently produces duplicate month groups.
 - **Each `EventKitManager()` makes its own `EKEventStore`.** Create one and register it in `SourceDependency`; don't instantiate per view.
+- **Prefer `save(_:includeAll:)` / `remove(_:includeAll:)` / `fetchEvents(start:end:sorted:)` (on the protocol, so they can be faked).** `save` and `remove` throw; the older `saveEKEvent` and `deleteEvent` hide the error.
 - `includeAll` maps to EventKit's span: `true` → `.futureEvents`, `false` → `.thisEvent`.
 - Info.plist: `NSCalendarsFullAccessUsageDescription` (and `NSRemindersFullAccessUsageDescription` for reminders). Authorization is per `EKEntityType`.
 - EventKit half is wrapped in `#if canImport(EventKit)`; the date helpers are always available.

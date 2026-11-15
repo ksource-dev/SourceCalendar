@@ -5,7 +5,7 @@
 //  Created by Kevin Christiano on 9/16/23.
 //
 
-#if canImport(EventKit)
+#if canImport(EventKit) && !os(watchOS)
 import EventKit
 import Foundation
 
@@ -119,6 +119,14 @@ public struct EventKitManager: EventsKitManagerProtocol {
         return sortedEvents
     }
     
+    public func save(_ event: EKEvent, includeAll: Bool = false) throws {
+        try store.save(event, span: includeAll ? .futureEvents : .thisEvent, commit: true)
+    }
+
+    public func remove(_ event: EKEvent, includeAll: Bool = false) throws {
+        try store.remove(event, span: includeAll ? .futureEvents : .thisEvent, commit: true)
+    }
+
     public func saveEKEvent(_ event: EKEvent, includeAll: Bool = false) -> Bool {
         do {
             try store.save(event,
